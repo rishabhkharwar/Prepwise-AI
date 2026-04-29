@@ -2,7 +2,7 @@
 .env
 .env.local
 .env.production.local
-.env.production
+# .env.production is committed for Render deployment (contains public URLs only)
 
 # Dependencies
 node_modules/
