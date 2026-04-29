@@ -1,6 +1,8 @@
 import React,{useState} from 'react'
 import { useNavigate, Link } from 'react-router'
+import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
+import { motion } from 'framer-motion'
 
 const Register = () => {
 
@@ -23,7 +25,12 @@ const Register = () => {
 
     return (
         <main>
-            <div className="form-container">
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="form-container"
+            >
                 <h1>Register</h1>
 
                 <form onSubmit={handleSubmit}>
@@ -52,7 +59,7 @@ const Register = () => {
                 </form>
 
                 <p>Already have an account? <Link to={"/login"} >Login</Link> </p>
-            </div>
+            </motion.div>
         </main>
     )
 }

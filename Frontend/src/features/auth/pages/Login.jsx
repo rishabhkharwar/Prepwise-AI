@@ -2,6 +2,7 @@ import React,{useState} from 'react'
 import { useNavigate, Link } from 'react-router'
 import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
+import { motion } from 'framer-motion'
 
 const Login = () => {
 
@@ -24,7 +25,12 @@ const Login = () => {
 
     return (
         <main>
-            <div className="form-container">
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="form-container"
+            >
                 <h1>Login</h1>
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
@@ -42,7 +48,7 @@ const Login = () => {
                     <button className='button primary-button' >Login</button>
                 </form>
                 <p>Don't have an account? <Link to={"/register"} >Register</Link> </p>
-            </div>
+            </motion.div>
         </main>
     )
 }

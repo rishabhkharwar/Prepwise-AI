@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import "../style/home.scss"
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate } from 'react-router'
+import toast from 'react-hot-toast'
+import { motion } from 'framer-motion'
 
 const Home = () => {
 
@@ -9,6 +11,7 @@ const Home = () => {
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
     const [ resumeFileName, setResumeFileName ] = useState("")
+    const [ isDragging, setIsDragging ] = useState(false)
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
@@ -18,8 +21,34 @@ const Home = () => {
     }, [])
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0]
-        setResumeFileName(file ? file.name : "")
+        const file = e.target.files?.[0]
+        if (file) {
+            setResumeFileName(file.name)
+        }
+    }
+
+    const handleDragOver = (e) => {
+        e.preventDefault()
+        setIsDragging(true)
+    }
+
+    const handleDragLeave = (e) => {
+        e.preventDefault()
+        setIsDragging(false)
+    }
+
+    const handleDrop = (e) => {
+        e.preventDefault()
+        setIsDragging(false)
+        const file = e.dataTransfer.files?.[0]
+        if (file) {
+            if (file.type === 'application/pdf' || file.name.endsWith('.docx')) {
+                resumeInputRef.current.files = e.dataTransfer.files
+                setResumeFileName(file.name)
+            } else {
+                toast.error("Please upload a PDF or DOCX file.")
+            }
+        }
     }
 
     const handleClearFile = (e) => {
@@ -35,11 +64,13 @@ const Home = () => {
         if (!jobDescription.trim()) {
             clearError()
             // Use the hook's error mechanism to show message
-            return alert("Please enter a job description.")
+            toast.error("Please enter a job description.")
+            return
         }
 
         if (!resumeFile && !selfDescription.trim()) {
-            return alert("Please upload a resume or enter a self-description.")
+            toast.error("Please upload a resume or enter a self-description.")
+            return
         }
 
         const data = await generateReport({ jobDescription, selfDescription, resumeFile })
@@ -51,22 +82,46 @@ const Home = () => {
     if (loading) {
         return (
             <main className='loading-screen'>
-                <h1>Loading your interview plan...</h1>
+                <div className='spinner'></div>
+                <h2>Analyzing Profile & Generating Plan...</h2>
+                <p style={{ color: '#7d8590', marginTop: '0.5rem' }}>This usually takes around 30 seconds.</p>
             </main>
         )
     }
 
     return (
-        <div className='home-page'>
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className='home-page'
+        >
 
             {/* Page Header */}
             <header className='page-header'>
-                <h1>Create Your Custom <span className='highlight'>Interview Plan</span></h1>
-                <p>Let our AI analyze the job requirements and your unique profile to build a winning strategy.</p>
+                <motion.h1 
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                >
+                    Create Your Custom <span className='highlight'>Interview Plan</span>
+                </motion.h1>
+                <motion.p
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    Let our AI analyze the job requirements and your unique profile to build a winning strategy.
+                </motion.p>
             </header>
 
             {/* Main Card */}
-            <div className='interview-card'>
+            <motion.div 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className='interview-card'
+            >
                 <div className='interview-card__body'>
 
                     {/* Left Panel - Job Description */}
@@ -105,7 +160,13 @@ const Home = () => {
                                 Upload Resume
                                 <span className='badge badge--best'>Best Results</span>
                             </label>
-                            <label className={`dropzone ${resumeFileName ? 'dropzone--selected' : ''}`} htmlFor='resume'>
+                            <label 
+                                className={`dropzone ${resumeFileName ? 'dropzone--selected' : ''} ${isDragging ? 'dropzone--dragging' : ''}`} 
+                                htmlFor='resume'
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                            >
                                 {resumeFileName ? (
                                     <>
                                         <span className='dropzone__icon dropzone__icon--success'>
@@ -172,11 +233,16 @@ const Home = () => {
                         {loading ? 'Generating...' : 'Generate My Interview Strategy'}
                     </button>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Recent Reports List */}
             {reports.length > 0 && (
-                <section className='recent-reports'>
+                <motion.section 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className='recent-reports'
+                >
                     <h2>My Recent Interview Plans</h2>
                     <ul className='reports-list'>
                         {reports.map(report => (
@@ -187,7 +253,7 @@ const Home = () => {
                             </li>
                         ))}
                     </ul>
-                </section>
+                </motion.section>
             )}
 
             {/* Page Footer */}
@@ -196,7 +262,7 @@ const Home = () => {
                 <a href='#'>Terms of Service</a>
                 <a href='#'>Help Center</a>
             </footer>
-        </div>
+        </motion.div>
     )
 }
 

@@ -11,11 +11,10 @@ export const useInterview = () => {
         throw new Error("useInterview must be used within an InterviewProvider")
     }
 
-    const { loading, setLoading, report, setReport, reports, setReports, error, setError } = context
+    const { loading, setLoading, report, setReport, reports, setReports } = context
 
     const generateReport = async ({ jobDescription, selfDescription, resumeFile }) => {
         setLoading(true)
-        setError(null)
         let interviewReport = null
         try {
             const response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile })
@@ -25,8 +24,6 @@ export const useInterview = () => {
             }
         } catch (error) {
             console.error("generateReport error:", error)
-            const msg = error.response?.data?.message || error.message || "Failed to generate report"
-            setError(msg)
         } finally {
             setLoading(false)
         }
@@ -89,6 +86,6 @@ export const useInterview = () => {
         }
     }
 
-    return { loading, error, report, reports, generateReport, getReportById, getReports, getResumePdf, clearError: () => setError(null) }
+    return { loading, report, reports, generateReport, getReportById, getReports, getResumePdf }
 
 }

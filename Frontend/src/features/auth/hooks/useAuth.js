@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
 import { AuthContext } from "../auth.context";
 import { login, register, logout, getMe } from "../services/auth.api";
+import toast from 'react-hot-toast';
 
 
 
@@ -14,9 +15,14 @@ export const useAuth = () => {
         setLoading(true)
         try {
             const data = await login({ email, password })
-            setUser(data.user)
+            if (data && data.user) {
+                setUser(data.user)
+                toast.success("Logged in successfully!")
+            } else {
+                toast.error("Login failed. Please check your credentials.")
+            }
         } catch (err) {
-
+            toast.error("An error occurred during login.")
         } finally {
             setLoading(false)
         }
@@ -26,9 +32,14 @@ export const useAuth = () => {
         setLoading(true)
         try {
             const data = await register({ username, email, password })
-            setUser(data.user)
+            if (data && data.user) {
+                setUser(data.user)
+                toast.success("Registration successful!")
+            } else {
+                toast.error("Registration failed.")
+            }
         } catch (err) {
-
+            toast.error("An error occurred during registration.")
         } finally {
             setLoading(false)
         }
@@ -39,8 +50,9 @@ export const useAuth = () => {
         try {
             const data = await logout()
             setUser(null)
+            toast.success("Logged out successfully!")
         } catch (err) {
-
+            toast.error("Error logging out.")
         } finally {
             setLoading(false)
         }
